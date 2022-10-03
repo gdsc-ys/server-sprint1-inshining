@@ -1,14 +1,16 @@
 import os
 
-from fastapi import APIRouter
-from services.board import BoardService
+from fastapi import APIRouter, Depends
+
+from config.settings import get_cursor
+from services.board import board_service
+from psycopg2._psycopg import cursor
 
 
 router = APIRouter()
 
 @router.get("/")
-async def get_boards():
-    service = BoardService()
-    result = service.get_boards()
+def get_boards(cursor : cursor = Depends(get_cursor)):
+    result = board_service.get_boards(cursor)
 
     return result
