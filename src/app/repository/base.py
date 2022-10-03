@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 import psycopg2
 
-from config.settings import get_session
 
 load_dotenv()
 
