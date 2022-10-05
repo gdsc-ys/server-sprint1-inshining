@@ -1,9 +1,7 @@
 import os
 
 import psycopg2
-from dotenv import load_dotenv
 
-load_dotenv()
 
 def get_cursor():
     try:
@@ -14,5 +12,14 @@ def get_cursor():
     except Exception as e:
         print(e)
     finally:
-        cur.close()
         conn.close()
+
+async def write_sql(sql, value):
+
+    pass
+
+async def select_one_sql(sql, value):
+    pass
+
+async def select_many_sql(sql, value):
+    pass
