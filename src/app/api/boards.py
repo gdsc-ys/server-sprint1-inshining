@@ -6,12 +6,13 @@ from config.settings import get_cursor
 from services.board import board_service
 from psycopg2._psycopg import cursor
 
+from db.sql import select_many_sql
 
 router = APIRouter()
 
 @router.get("/")
-def get_boards(cursor : cursor = Depends(get_cursor)):
-    result = board_service.get_boards(cursor)
+def get_boards():
+    result = select_many_sql("SELECT * FROM board")
 
     return result
 
