@@ -18,3 +18,7 @@ def create_user(obj : UserCreate, cursor : cursor = Depends(get_cursor)):
     user = user_service.create(user_obj = obj)
     return user
 
+# 유저 정보 조회
+@router.get("/{user_id}")
+def get_user():
+    pass
