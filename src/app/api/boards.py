@@ -6,7 +6,7 @@ from config.settings import get_cursor
 from services.board import board_service
 from psycopg2._psycopg import cursor
 
-from db.sql import select_many_sql
+from db.sql import select_many_sql, select_one_sql
 
 router = APIRouter()
 
@@ -22,9 +22,10 @@ def create_board():
     pass
 
 # 게시물 하나 조회
-@router.get("/board")
-def get_board():
-    pass
+@router.get("/{board_id}")
+def get_board(board_id):
+    result = select_one_sql(f"SELECT * FROM board WHERE id = {board_id}")
+    return result
 
 # 게시물 하나 업데이트
 @router.put("/board/{board_id}")
