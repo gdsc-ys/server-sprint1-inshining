@@ -14,5 +14,4 @@ def get_cursor():
     except Exception as e:
         print(e)
     finally:
-        cur.close()
         conn.close()
