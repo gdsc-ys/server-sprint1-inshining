@@ -21,7 +21,7 @@ def create_board(board : BoardCreate):
 # 게시물 하나 조회
 @router.get("/{board_id}")
 def get_board(board_id):
-    result = select_one_sql(f"SELECT * FROM board WHERE id = {board_id}")
+    result = select_one_sql(f"SELECT board.id, board.title, board.content, (SELECT count(*) FROM comment WHERE board.id = comment.board_id) as comments FROM board WHERE board.id = {board_id}")
     return result
 
 # 게시물 하나 업데이트
