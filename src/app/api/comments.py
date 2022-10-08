@@ -1,3 +1,6 @@
+import random
+
+from faker import Faker
 from fastapi import APIRouter
 
 from db.sql import select_one_sql, write_sql
@@ -25,3 +28,12 @@ def update_comment(comment_id, comment: CommentUpdate):
 def delete_comment(comment_id):
     write_sql("DELETE FROM comment WHERE id = %s", (comment_id))
     return {"msg": "success"}
+
+@router.post("/bulk/{count_comment}")
+def bulk_create_comments(count_comment: int):
+    fake = Faker("ko_KR")
+    contents = [fake.text(50) for _ in range(count_comment)]
+    board_ids = [random.randint(1, 100000) for _ in range(count_comment)]
+    write_sql("INSERT INTO comment ( content, board_id) SELECT UNNEST(%(unnest_content)s),UNNEST(%(unnest_board_id)s)",
+              {"unnest_board_id": board_ids, "unnest_content": contents})
+    return contents
