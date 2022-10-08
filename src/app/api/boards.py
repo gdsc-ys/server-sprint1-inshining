@@ -1,13 +1,9 @@
-import json
-
-import redis
 from fastapi import APIRouter
 
 from db.redis import write_redis_obj, get_redis_obj
 from db.sql import select_many_sql, select_one_sql, write_sql
 from schemas.board import BoardCreate, BoardUpdate, Board
 from faker import Faker
-from redis.commands.json.path import Path
 
 router = APIRouter()
 
