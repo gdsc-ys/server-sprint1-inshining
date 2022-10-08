@@ -2,6 +2,8 @@ import json
 
 import redis
 from fastapi import APIRouter
+
+from db.redis import write_redis_obj, get_redis_obj
 from db.sql import select_many_sql, select_one_sql, write_sql
 from schemas.board import BoardCreate, BoardUpdate
 from faker import Faker
@@ -52,12 +54,11 @@ def create_boards(count_board : int):
 def create_board_redis(board_id: int):
     redis_pool = redis.Redis(host="localhost", port="6379")
     (id, title, content, count_comment) = select_one_sql(f"SELECT board.id, board.title, board.content, (SELECT count(*) FROM comment WHERE board.id = comment.board_id) as comments FROM board WHERE board.id = {board_id}")
-    json_board = json.dumps({"id": id, "title": title, "content" : content, "count_comment": count_comment},ensure_ascii=False).encode("utf-8")
-    redis_pool.set(f"board_id:{board_id}", json_board)
+    board_dict = {"id": id, "title": title, "content": content, "count_comment": count_comment}
+    write_redis_obj(f"board_id:{board_id}", board_dict)
     return (id, title, content, count_comment)
 
 @router.get("/redis-test/{board_id}")
 def get_board_by_redis(board_id):
-    redis_pool = redis.Redis(host="localhost", port="6379")
-    result = redis_pool.get(f"board_id:{board_id}").decode("utf-8")
-    return json.loads(result)
+    result = get_redis_obj(f"board_id:{board_id}")
+    return result
