@@ -10,3 +10,6 @@ class BoardCreate(BoardBase):
 class BoardUpdate(BoardBase):
     pass
 
+class Board(BoardBase):
+    pass
+
