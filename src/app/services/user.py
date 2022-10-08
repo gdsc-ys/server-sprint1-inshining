@@ -1,22 +1,23 @@
-from psycopg2._psycopg import cursor
-
-from repository.user import UserRepository
+from config.security import verify_password
+from db.sql import select_one_sql, select_many_sql
 from schemas.user import UserCreate, User
 
 class UserService:
-    def __init__(self):
-        self.db = UserRepository()
-
     def create(self, cursor, user_obj : UserCreate ) -> User:
         user = self.db.save_user(cursor, user_obj)
         return user
 
-    def get_user_by_username(self, cursor : cursor ,username : str):
-        result = self.db.retrieve_user_by_username(cursor, username)
-        return result
+    def authenticate(self, username: str, password: str):
+        user = self.get_user_by_username(username)
+        if not user:
+            return None
+        if not verify_password(password, user[2]):
+            return None
+        return user
 
-    def __del__(self):
-        del self.db
+    def get_user_by_username(self, username : str):
+        user = select_many_sql(f"SELECT * FROM user WHERE username = {username}")
+        return user
 
 
-user_service = UserService
+user_service = UserService()
