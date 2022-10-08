@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from db.sql import select_many_sql, select_one_sql, write_sql
 from schemas.board import BoardCreate, BoardUpdate
 from schemas.comment import CommentCreate, CommentUpdate
+from faker import Faker
 
 router = APIRouter()
 
@@ -57,3 +58,11 @@ def update_comment(comment_id, comment: CommentUpdate):
 def delete_comment(comment_id):
     write_sql("DELETE FROM comment WHERE id = %s", (comment_id))
     return {"msg": "success"}
+
+@router.post("/bulk/{count_board}")
+def create_boards(count_board : int):
+    fake = Faker("ko_KR")
+    titles = [fake.text(32) for _ in range(count_board)]
+    contents = [fake.text(50) for _ in range(count_board)]
+    write_sql("INSERT INTO board (title, content) SELECT UNNEST(%(unnest_title)s), UNNEST(%(unnest_content)s)", {"unnest_title": titles, "unnest_content": contents})
+    return contents
