@@ -1,9 +1,11 @@
-import os
+import json
 
+import redis
 from fastapi import APIRouter
 from db.sql import select_many_sql, select_one_sql, write_sql
 from schemas.board import BoardCreate, BoardUpdate
 from faker import Faker
+from redis.commands.json.path import Path
 
 router = APIRouter()
 
@@ -45,3 +47,17 @@ def create_boards(count_board : int):
     contents = [fake.text(50) for _ in range(count_board)]
     write_sql("INSERT INTO board (title, content) SELECT UNNEST(%(unnest_title)s), UNNEST(%(unnest_content)s)", {"unnest_title": titles, "unnest_content": contents})
     return contents
+
+@router.post("/redis-test/{board_id}")
+def create_board_redis(board_id: int):
+    redis_pool = redis.Redis(host="localhost", port="6379")
+    (id, title, content, count_comment) = select_one_sql(f"SELECT board.id, board.title, board.content, (SELECT count(*) FROM comment WHERE board.id = comment.board_id) as comments FROM board WHERE board.id = {board_id}")
+    json_board = json.dumps({"id": id, "title": title, "content" : content, "count_comment": count_comment},ensure_ascii=False).encode("utf-8")
+    redis_pool.set(f"board_id:{board_id}", json_board)
+    return (id, title, content, count_comment)
+
+@router.get("/redis-test/{board_id}")
+def get_board_by_redis(board_id):
+    redis_pool = redis.Redis(host="localhost", port="6379")
+    result = redis_pool.get(f"board_id:{board_id}").decode("utf-8")
+    return json.loads(result)
